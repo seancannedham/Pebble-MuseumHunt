@@ -5,6 +5,7 @@
  */
 
 //all the questions, correct answers, whether user answered or not is here
+// useranswer is initially set to -1 to indicate the question has not been answered
 var artifact = [];
 artifact[0] = {question:"The name of the stitches that hang off the bottom of the artifact are called ears", answer:1, useranswer:-1};
 artifact[1] = {question:"The collar was filled with sugar pine, sage, or dandelion", answer:0, useranswer: -1};
@@ -34,6 +35,7 @@ var welcome = new UI.Card({
   body: 'Press center button to begin'
 });
 
+//initially set score to zero
 var wcm_score = 0;
 
 
@@ -46,37 +48,37 @@ var home = new UI.Window({
     backgroundColor: 'white'
   }
 });
-var hme_values = [0,0,0];
-var hme_positioncounter = 2;
-var hme_IDvalue;
-var hme_font = 'bitham-42-bold';
+var home_values = [0,0,0]; //the initial artifact ID is 000, to be incremented
+var home_positioncounter = 2; //start with the furthest digit to the right (ones)
+var home_IDvalue; // to be determined by the user
+var home_font = 'bitham-42-bold';
 
 
-var hme_eachfield = [new UI.Text({
-    position: new Vector2(0, 50),
+var home_eachfield = [new UI.Text({
+    position: new Vector2(0, 50), //---display first digit
     size: new Vector2(30, 30),
     font: 'bitham-42-bold',
-    text: hme_values[0],
+    text: home_values[0],
     textAlign: 'center'
   }),
   new UI.Text({
-    position: new Vector2(40, 50),
+    position: new Vector2(40, 50), //---display second digit
     size: new Vector2(30, 30),
     //font: 'gothic-24-bold',
     font: 'bitham-42-bold',
-    text: hme_values[1],
+    text: home_values[1],
     textAlign: 'center'
   }),
   new UI.Text({
-    position: new Vector2(80, 50),
+    position: new Vector2(80, 50), //---display third digit
     size: new Vector2(30, 30),
     //font: 'gothic-24-bold',
     font: 'bitham-42-bold',
-    text: hme_values[2],
+    text: home_values[2],
     textAlign: 'center'
     })];
-var hme_lpress = new UI.Text({
-  position: new Vector2(0, 100),
+var home_lpress = new UI.Text({
+  position: new Vector2(0, 100), //---display instructions
     size: new Vector2(100, 40),
     //font: 'gothic-24-bold',
     font: 'gothic-18-bold',
@@ -85,29 +87,29 @@ var hme_lpress = new UI.Text({
 });
 
 
-function hme_incrementcounter()
+function home_incrementcounter()
 {
-  hme_positioncounter = (hme_positioncounter + 1) % 3;
+  home_positioncounter = (home_positioncounter + 1) % 3; //---mod 3 to maintain a 3 digit number
   return;
 }
 
-function hme_setinitialscreen1()
+function home_setinitialscreen1()
 {
-  hme_positioncounter = 2;
+  home_positioncounter = 2;
   for(var i = 0; i<3; i++)
   {
-    home.add(hme_eachfield[hme_positioncounter]);
-    hme_incrementcounter();
+    home.add(home_eachfield[home_positioncounter]);
+    home_incrementcounter();
   }
-  home.add(hme_lpress);
+  home.add(home_lpress);
 } 
 
-function hme_modadd(value)
+function home_modadd(value)
 {
   return ((value + 1) % 10);
 }
 
-function hme_modsub(value)
+function home_modsub(value)
 {
   value = ((value - 1) % 10);
   if (value < 0)
@@ -117,32 +119,34 @@ function hme_modsub(value)
   return value;
 }
 
+// --- Define actions in the home screen --- //
 home.on('click', 'up', function(e)
 {
-  hme_values[hme_positioncounter] = hme_modadd(hme_values[hme_positioncounter]);
-  hme_eachfield[hme_positioncounter].text(hme_values[hme_positioncounter]);
+  home_values[home_positioncounter] = home_modadd(home_values[home_positioncounter]);
+  home_eachfield[home_positioncounter].text(home_values[home_positioncounter]);
   console.log("up click");
 });
 home.on('click', 'down', function(e) {
- hme_values[hme_positioncounter] = hme_modsub(hme_values[hme_positioncounter]);
-hme_eachfield[hme_positioncounter].text(hme_values[hme_positioncounter]);
+ home_values[home_positioncounter] = home_modsub(home_values[home_positioncounter]);
+home_eachfield[home_positioncounter].text(home_values[home_positioncounter]);
 });
 
 home.on('click', 'select', function(e) {
-  hme_eachfield[hme_positioncounter].font('bitham-42-bold');  
-  hme_incrementcounter();
+  home_eachfield[home_positioncounter].font('bitham-42-bold');  
+  home_incrementcounter();
     
 });
 
-function hme_getIDValue()
+function home_getIDValue() // set artifact ID variable to be the number the user has input
 {
-  hme_IDvalue = ((hme_values[0] * 100) + (hme_values[1] * 10) + hme_values[2]);
+  home_IDvalue = ((home_values[0] * 100) + (home_values[1] * 10) + home_values[2]);
   //console.log("completed getIDValue");
 }
 
-function hme_validid(value_id)
+function home_validID(value_id)
 {
-  if ((value_id >= 0) && (value_id < artifact.length))
+  return ((value_id >= 0) && (value_id < artifact.length)); // we can only have an ID as high as our amount of artifacts
+    /*
     {
       return true;
     }
@@ -150,10 +154,11 @@ function hme_validid(value_id)
     {
       return false;
     }
+    */
 }
 
 
-
+// --- Define all UI Cards to be used throughout the game ---//
 //----------display_question
 
 var display_question = new UI.Card({
@@ -209,41 +214,43 @@ var answer_window = new UI.Menu({
       items: [{
         title: 'False',
         icon: 'images/Resized-FF.png',
-        subtitle: 'False answer'
+        subtitle: 'The question if false'
       },{
         title: 'True',
         icon: 'images/Resized-TTT.png',
-        subtitle: 'True answer'
+        subtitle: 'The question is true'
       }, {
         title: '<- Main Menu',
         icon: '',
       }]
     }]
 });
+// --- End define UI Cards --- //
 
-function asw_increment_score(weight){
+// --- Define actions once 
+function answer_increment_score(weight){
     wcm_score = wcm_score + weight;
   }
 
 answer_window.on('select', function(e) {
-    var answer = artifact[hme_IDvalue].answer;
+    var answer = artifact[home_IDvalue].answer;
     var weight = 1;
     //var validity, congrats;
     switch(e.itemIndex){
       case 0:
         if(answer === 0){
           update_score.title("Correct");
-          update_score.body("Nice work detective!");
+          update_score.body("Nice work!");
           update_score.icon("images/Correct.png");
-          asw_increment_score(weight);
+          answer_increment_score(weight);
           
         }else{
           update_score.title("Incorrect");
-          update_score.body("Try again next time!");
+          update_score.body("Try again.");
           update_score.icon("images/Wrong.png");
         }
-        artifact[hme_IDvalue].useranswer = 0;
-        hme_positioncounter = 2;
+        artifact[home_IDvalue].useranswer = 0; // set question to answered
+        home_positioncounter = 2;
         update_score.body("Your current score is "+wcm_score.toString());
         update_score.show();
         answer_window.hide();
@@ -255,14 +262,14 @@ answer_window.on('select', function(e) {
           update_score.title("Correct");
           update_score.body("Nice work detective!");
           update_score.icon("images/Correct.png");
-          asw_increment_score(weight);
+          answer_increment_score(weight);
         }else{
           update_score.title("Incorrect");
           update_score.body("Try again next time!");
           update_score.icon("images/Wrong.png");
         }
-        artifact[hme_IDvalue].useranswer = 0;
-        hme_positioncounter = 2;
+        artifact[home_IDvalue].useranswer = 0;
+        home_positioncounter = 2;
         update_score.body("Your current score is "+wcm_score.toString());
         update_score.show();
         answer_window.hide();
@@ -270,7 +277,7 @@ answer_window.on('select', function(e) {
         break;
         
       case 2:
-        hme_positioncounter = 2;
+        home_positioncounter = 2;
         answer_window.hide();
         display_question.hide();
         break;
@@ -279,26 +286,27 @@ answer_window.on('select', function(e) {
   
 
 //----------Things which depend on home
+// -- Make the current value being changed hightlight for easier tracking -- //
 welcome.on('click', 'select', function(e){
   home.show();
-  hme_setinitialscreen1();
-  setInterval(function hme_changecolor() {
-  if(hme_font == 'bitham-42-bold')
+  home_setinitialscreen1();
+  setInterval(function home_changecolor() {
+  if(home_font == 'bitham-42-bold')
     {
-      hme_eachfield[hme_positioncounter].font("gothic-24-bold");
-      hme_font = "gothic-24-bold";
+      home_eachfield[home_positioncounter].font("gothic-24-bold");
+      home_font = "gothic-24-bold";
     }
   else
     {
-      hme_eachfield[hme_positioncounter].font('bitham-42-bold');
-      hme_font = 'bitham-42-bold';
+      home_eachfield[home_positioncounter].font('bitham-42-bold');
+      home_font = 'bitham-42-bold';
     }  
 }, 1000);
   //welcome.hide();
 });
 
 //-----------
-function dsq_show_question(id_value)
+function display_show_question(id_value)
 {
   console.log("Started Show question");
   display_question.title('Question:');
@@ -307,20 +315,20 @@ function dsq_show_question(id_value)
   console.log("ended show question");
 }
 
-function dsq_showerror()
+function display_showerror()
 {
   wrong_ID.show();
 }
 
-//Things dependent on display question and before
+//Things dependent on display question and previous frames
 home.on('longClick', 'select', function(e) {
     console.log("long click");
-    hme_getIDValue();
-    if(hme_validid(hme_IDvalue))
+    home_getIDValue();
+    if(home_validID(home_IDvalue))
       {
-        if(artifact[hme_IDvalue].useranswer === -1)
+        if(artifact[home_IDvalue].useranswer === -1)
           {
-            dsq_show_question(hme_IDvalue);
+            display_show_question(home_IDvalue);
           }
         else
           {
@@ -329,7 +337,7 @@ home.on('longClick', 'select', function(e) {
       }
     else
       {
-        dsq_showerror();
+        display_showerror();
       }
    
 });
